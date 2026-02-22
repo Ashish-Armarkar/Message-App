@@ -21,25 +21,25 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingVerifiedUserByEmail = await UserModel.findOne({
+    const existingUserByEmail = await UserModel.findOne({
       email,
       isVerified: true,
     });
 
-    if (existingVerifiedUserByEmail) {
-      if (existingVerifiedUserByEmail.isVerified) {
+    if (existingUserByEmail) {
+      if (existingUserByEmail.isVerified) {
         return Response.json(
           { success: false, message: "Email is already registered" },
           { status: 400 },
         );
       } else {
         const hasedPassword = await bcrypt.hash(password, 10);
-        existingVerifiedUserByEmail.password = hasedPassword;
-        existingVerifiedUserByEmail.verifyCode = verifyCode;
+        existingUserByEmail.password = hasedPassword;
+        existingUserByEmail.verifyCode = verifyCode;
         const expiryDate = new Date();
         expiryDate.setHours(expiryDate.getHours() + 1);
-        existingVerifiedUserByEmail.verifyCodeExpiry = expiryDate;
-        await existingVerifiedUserByEmail.save();
+        existingUserByEmail.verifyCodeExpiry = expiryDate;
+        await existingUserByEmail.save();
       }
     } else {
       const hasedPassword = await bcrypt.hash(password, 10);
